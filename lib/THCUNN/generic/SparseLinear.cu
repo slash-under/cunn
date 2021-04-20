@@ -92,10 +92,34 @@ void THNN_(SparseLinear_updateOutput)(
   cusparseSetMatType(descr,CUSPARSE_MATRIX_TYPE_GENERAL);
   cusparseSetMatIndexBase(descr,CUSPARSE_INDEX_BASE_ONE);
   #ifdef THC_REAL_IS_FLOAT
-  cusparseScsrmm(cusparse_handle,
+    #ifdef CUSPARSE_GENERIC_INTERFACES
+        generic_SpMM(cusparse_handle,
+          CUSPARSE_OPERATION_NON_TRANSPOSE,
+          batchnum, outDim, inDim, nnz,
+          inDim,
+         batchnum,
+         &one,
+          THCTensor_(data)(state, values),
+          THCTensor_(data)(state, weight),
+         THCTensor_(data)(state, buffer),
+         THCudaIntTensor_data(state, csrPtrs),
+          THCudaIntTensor_data(state, colInds),
+         &one,
+         CUDA_R_32F);
+      #else
+      cusparseCheckError(cusparseScsrmm(cusparse_handle,
+        CUSPARSE_OPERATION_NON_TRANSPOSE,
+        batchnum, outDim, inDim, nnz,
+        &one,
+        descr,
+        THCTensor_(data)(state, values),
+        THCudaIntTensor_data(state, csrPtrs),
+        THCudaIntTensor_data(state, colInds),
+        THCTensor_(data)(state, weight), inDim,
+        &one, THCTensor_(data)(state, buffer), batchnum));
+      #endif
   #elif defined(THC_REAL_IS_DOUBLE)
-  cusparseDcsrmm(cusparse_handle,
-  #endif
+  cusparseCheckError(cusparseDcsrmm(cusparse_handle,
       CUSPARSE_OPERATION_NON_TRANSPOSE,
       batchnum, outDim, inDim, nnz,
       &one,
@@ -104,8 +128,8 @@ void THNN_(SparseLinear_updateOutput)(
       THCudaIntTensor_data(state, csrPtrs),
       THCudaIntTensor_data(state, colInds),
       THCTensor_(data)(state, weight), inDim,
-      &one, THCTensor_(data)(state, buffer), batchnum
-  );
+      &one, THCTensor_(data)(state, buffer), batchnum));
+  #endif
   THCTensor_(transpose)(state, buffer, NULL, 0, 1);
 
   // We do work in the buffer to keep the output contiguous
