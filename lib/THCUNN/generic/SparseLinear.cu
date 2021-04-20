@@ -94,29 +94,29 @@ void THNN_(SparseLinear_updateOutput)(
   #ifdef THC_REAL_IS_FLOAT
     #ifdef CUSPARSE_GENERIC_INTERFACES
         generic_SpMM(cusparse_handle,
+            CUSPARSE_OPERATION_NON_TRANSPOSE,
+            batchnum, outDim, inDim, nnz,
+            inDim,
+            batchnum,
+            &one,
+            THCTensor_(data)(state, values),
+            THCTensor_(data)(state, weight),
+            THCTensor_(data)(state, buffer),
+            THCudaIntTensor_data(state, csrPtrs),
+            THCudaIntTensor_data(state, colInds),
+            &one,
+            CUDA_R_32F);
+    #else
+        cusparseCheckError(cusparseScsrmm(cusparse_handle,
           CUSPARSE_OPERATION_NON_TRANSPOSE,
           batchnum, outDim, inDim, nnz,
-          inDim,
-         batchnum,
-         &one,
+          &one,
+          descr,
           THCTensor_(data)(state, values),
-          THCTensor_(data)(state, weight),
-         THCTensor_(data)(state, buffer),
-         THCudaIntTensor_data(state, csrPtrs),
+          THCudaIntTensor_data(state, csrPtrs),
           THCudaIntTensor_data(state, colInds),
-         &one,
-         CUDA_R_32F);
-      #else
-      cusparseCheckError(cusparseScsrmm(cusparse_handle,
-        CUSPARSE_OPERATION_NON_TRANSPOSE,
-        batchnum, outDim, inDim, nnz,
-        &one,
-        descr,
-        THCTensor_(data)(state, values),
-        THCudaIntTensor_data(state, csrPtrs),
-        THCudaIntTensor_data(state, colInds),
-        THCTensor_(data)(state, weight), inDim,
-        &one, THCTensor_(data)(state, buffer), batchnum));
+          THCTensor_(data)(state, weight), inDim,
+          &one, THCTensor_(data)(state, buffer), batchnum));
       #endif
   #elif defined(THC_REAL_IS_DOUBLE)
   cusparseCheckError(cusparseDcsrmm(cusparse_handle,
