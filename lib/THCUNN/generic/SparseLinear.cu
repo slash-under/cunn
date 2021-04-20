@@ -251,7 +251,7 @@ void THNN_(SparseLinear_accGradParameters)(
       THCudaIntTensor_data(state, colPtrs),
       THCudaIntTensor_data(state, rowInds),
       THCTensor_(data)(state, buf), batchnum,
-      &one, THCTensor_(data)(state, gradWeight), inDim);
+      &one, THCTensor_(data)(state, gradWeight), inDim));
   #endif
   THCTensor_(sum)(state, buf, gradOutput, 0, 1);
   THCTensor_(resize1d)(state, buf, outDim);
