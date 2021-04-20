@@ -215,10 +215,34 @@ void THNN_(SparseLinear_accGradParameters)(
   cusparseSetMatType(descr,CUSPARSE_MATRIX_TYPE_GENERAL);
   cusparseSetMatIndexBase(descr,CUSPARSE_INDEX_BASE_ONE);
   #ifdef THC_REAL_IS_FLOAT
-  cusparseScsrmm(cusparse_handle,
+    #ifdef CUSPARSE_GENERIC_INTERFACES
+        generic_SpMM(cusparse_handle,
+            CUSPARSE_OPERATION_NON_TRANSPOSE,
+            batchnum, outDim, inDim, nnz,
+            batchnum,
+            inDim,
+            &one,
+            THCTensor_(data)(state, values),
+            THCTensor_(data)(state, buf),
+            THCTensor_(data)(state, gradWeight),
+            THCudaIntTensor_data(state, colPtrs),
+            THCudaIntTensor_data(state, rowInds),
+            &one,
+            CUDA_R_32F);
+    #else
+        cusparseCheckError(cusparseScsrmm(cusparse_handle,
+          CUSPARSE_OPERATION_NON_TRANSPOSE,
+          inDim, outDim, batchnum, nnz,
+          &one,
+          descr,
+          THCTensor_(data)(state, values),
+          THCudaIntTensor_data(state, colPtrs),
+          THCudaIntTensor_data(state, rowInds),
+          THCTensor_(data)(state, buf), batchnum,
+          &one, THCTensor_(data)(state, gradWeight), inDim));
+    #endif
   #elif defined(THC_REAL_IS_DOUBLE)
-  cusparseDcsrmm(cusparse_handle,
-  #endif
+    cusparseCheckError(cusparseDcsrmm(cusparse_handle,
       CUSPARSE_OPERATION_NON_TRANSPOSE,
       inDim, outDim, batchnum, nnz,
       &one,
@@ -227,9 +251,8 @@ void THNN_(SparseLinear_accGradParameters)(
       THCudaIntTensor_data(state, colPtrs),
       THCudaIntTensor_data(state, rowInds),
       THCTensor_(data)(state, buf), batchnum,
-      &one, THCTensor_(data)(state, gradWeight), inDim
-  );
-
+      &one, THCTensor_(data)(state, gradWeight), inDim);
+  #endif
   THCTensor_(sum)(state, buf, gradOutput, 0, 1);
   THCTensor_(resize1d)(state, buf, outDim);
   THCTensor_(cadd)(state, gradBias, gradBias, scale, buf);

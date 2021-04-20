@@ -1,3 +1,6 @@
+/* Portions Copyright (c) 2013-2017, NVIDIA CORPORATION. All rights reserved.
+ * See LICENSE in root for details.
+ */
 #ifndef THC_GENERIC_FILE
 #define THC_GENERIC_FILE "generic/THCUNN.h"
 #else
@@ -1429,3 +1432,18 @@ TH_API void THNN_(VolumetricUpSamplingTrilinear_updateGradInput)(
                   int outputWidth);
 
 #endif
+
+#define cusparseCheckError(status) {\
+    switch(status) {\
+    case CUSPARSE_STATUS_SUCCESS:                   break;\
+    case CUSPARSE_STATUS_NOT_INITIALIZED:           FatalError("CUSPARSE_STATUS_NOT_INITIALIZED", THCUNN_ERR_CUDA_FAILURE);\
+    case CUSPARSE_STATUS_ALLOC_FAILED:              FatalError("CUSPARSE_STATUS_ALLOC_FAILED", THCUNN_ERR_CUDA_FAILURE);\
+    case CUSPARSE_STATUS_INVALID_VALUE:             FatalError("CUSPARSE_STATUS_INVALID_VALUE", THCUNN_ERR_CUDA_FAILURE);\
+    case CUSPARSE_STATUS_ARCH_MISMATCH:             FatalError("CUSPARSE_STATUS_ARCH_MISMATCH", THCUNN_ERR_CUDA_FAILURE);\
+    case CUSPARSE_STATUS_MAPPING_ERROR:             FatalError("CUSPARSE_STATUS_MAPPING_ERROR", THCUNN_ERR_CUDA_FAILURE);\
+    case CUSPARSE_STATUS_EXECUTION_FAILED:          FatalError("CUSPARSE_STATUS_EXECUTION_FAILED", THCUNN_ERR_CUDA_FAILURE);\
+    case CUSPARSE_STATUS_INTERNAL_ERROR:            FatalError("CUSPARSE_STATUS_INTERNAL_ERROR", THCUNN_ERR_CUDA_FAILURE);\
+    case CUSPARSE_STATUS_MATRIX_TYPE_NOT_SUPPORTED: FatalError("CUSPARSE_STATUS_MATRIX_TYPE_NOT_SUPPORTED", THCUNN_ERR_NOT_IMPLEMENTED);\
+    default:                                        FatalError("unknown CUSPARSE error", THCUNN_ERR_CUDA_FAILURE);\
+    }\
+}
