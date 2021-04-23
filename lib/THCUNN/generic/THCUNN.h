@@ -1447,16 +1447,6 @@ TH_API void THNN_(VolumetricUpSamplingTrilinear_updateGradInput)(
   throw _exception(std::string(s) + "\n", _where.str(), _trace.str(), reason); \
 }
 
-enum THCUNN_ERROR
-{
-    /*********************************************************
-     * Flags for status reporting
-     *********************************************************/
-    THCUNN_OK = 0,
-    THCUNN_ERR_CUDA_FAILURE = 5,
-    THCUNN_ERR_NOT_IMPLEMENTED = 13, // actually this error includes #3 and #4
-};
-
 #define cusparseCheckError(status) {\
     switch(status) {\
     case CUSPARSE_STATUS_SUCCESS:                   break;\
