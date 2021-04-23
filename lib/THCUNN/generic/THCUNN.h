@@ -1433,31 +1433,3 @@ TH_API void THNN_(VolumetricUpSamplingTrilinear_updateGradInput)(
 
 #endif
 
-/* Code below this line is derived from the NVIDIA AMGX project. Please see the message at the beginning of this file. */
-
-/********************************************************
- * Prints the error message, the stack trace, and exits
- * ******************************************************/
-#define FatalError(s, reason) {                                                 \
-  std::stringstream _where;                                                     \
-  _where << __FILE__ << ':' << __LINE__;                                        \
-  std::stringstream _trace;                                                     \
-  printStackTrace(_trace);                                                      \
-  cudaDeviceSynchronize();                                                      \
-  throw _exception(std::string(s) + "\n", _where.str(), _trace.str(), reason); \
-}
-
-#define cusparseCheckError(status) {\
-    switch(status) {\
-    case CUSPARSE_STATUS_SUCCESS:                   break;\
-    case CUSPARSE_STATUS_NOT_INITIALIZED:           FatalError("CUSPARSE_STATUS_NOT_INITIALIZED", THCUNN_ERR_CUDA_FAILURE);\
-    case CUSPARSE_STATUS_ALLOC_FAILED:              FatalError("CUSPARSE_STATUS_ALLOC_FAILED", THCUNN_ERR_CUDA_FAILURE);\
-    case CUSPARSE_STATUS_INVALID_VALUE:             FatalError("CUSPARSE_STATUS_INVALID_VALUE", THCUNN_ERR_CUDA_FAILURE);\
-    case CUSPARSE_STATUS_ARCH_MISMATCH:             FatalError("CUSPARSE_STATUS_ARCH_MISMATCH", THCUNN_ERR_CUDA_FAILURE);\
-    case CUSPARSE_STATUS_MAPPING_ERROR:             FatalError("CUSPARSE_STATUS_MAPPING_ERROR", THCUNN_ERR_CUDA_FAILURE);\
-    case CUSPARSE_STATUS_EXECUTION_FAILED:          FatalError("CUSPARSE_STATUS_EXECUTION_FAILED", THCUNN_ERR_CUDA_FAILURE);\
-    case CUSPARSE_STATUS_INTERNAL_ERROR:            FatalError("CUSPARSE_STATUS_INTERNAL_ERROR", THCUNN_ERR_CUDA_FAILURE);\
-    case CUSPARSE_STATUS_MATRIX_TYPE_NOT_SUPPORTED: FatalError("CUSPARSE_STATUS_MATRIX_TYPE_NOT_SUPPORTED", THCUNN_ERR_NOT_IMPLEMENTED);\
-    default:                                        FatalError("unknown CUSPARSE error", THCUNN_ERR_CUDA_FAILURE);\
-    }\
-}
