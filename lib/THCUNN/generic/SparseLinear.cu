@@ -1,5 +1,3 @@
-#include "error.h"
-
 #ifndef THC_GENERIC_FILE
 #define THC_GENERIC_FILE "generic/SparseLinear.cu"
 #else
