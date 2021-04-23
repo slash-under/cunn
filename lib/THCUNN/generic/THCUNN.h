@@ -1433,6 +1433,30 @@ TH_API void THNN_(VolumetricUpSamplingTrilinear_updateGradInput)(
 
 #endif
 
+/* Code below this line is derived from the NVIDIA AMGX project. Please see the message at the beginning of this file. */
+
+/********************************************************
+ * Prints the error message, the stack trace, and exits
+ * ******************************************************/
+#define FatalError(s, reason) {                                                 \
+  std::stringstream _where;                                                     \
+  _where << __FILE__ << ':' << __LINE__;                                        \
+  std::stringstream _trace;                                                     \
+  printStackTrace(_trace);                                                      \
+  cudaDeviceSynchronize();                                                      \
+  throw _exception(std::string(s) + "\n", _where.str(), _trace.str(), reason); \
+}
+
+enum THCUNN_ERROR
+{
+    /*********************************************************
+     * Flags for status reporting
+     *********************************************************/
+    THCUNN_OK = 0,
+    THCUNN_ERR_CUDA_FAILURE = 5,
+    THCUNN_ERR_NOT_IMPLEMENTED = 13, // actually this error includes #3 and #4
+};
+
 #define cusparseCheckError(status) {\
     switch(status) {\
     case CUSPARSE_STATUS_SUCCESS:                   break;\
